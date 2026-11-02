@@ -47,3 +47,15 @@ Oldest first, one entry per closed decision, so **a new entry is appended to the
 **Rejected.** Dropping the config file and its test now: it would have to be added back when the code move needs its first setting.
 
 **Companion.** `UAMS-Web/aether-tables#2`.
+
+---
+
+## 2026-11-02: Moved the table sanitizer and paste handling in without the site
+
+**Decision.** The sanitizer, the pasted-table parser, the `sanitize_table_cell` modifier and the two trigger listeners live here, with their tests. The config file is `config/tables.php`, merged under the unchanged `tables` key and published with the tag `aether-tables-config`; this replaces the `config/aether-tables.php` of the entry above. The listeners take the site's trigger event as an object with `entry`, `triggerHandle` and `formValues`, registered for the class named in `tables.trigger_event` (default `App\Events\TriggerActivated`), so nothing under `src/` imports from `App\`. The add-on adds its modifier to `statamic.antlers.allowedContentModifiers`. It carries its own `SpreadsheetImport`. The Table set's template, script and styles stay in the site.
+
+**Why.** Every handle and key stays as it is, so stored entries and the importer's writes are unaffected. Statamic runs only allowlisted modifiers on content data, and its default list covers `App\Modifiers` but not an add-on's, so without the allowlist entry the sanitizer would be skipped silently and cells would render unsanitized once the site deletes its copy. The site's `SpreadsheetImport` is also used by another site class, so the site keeps its copy.
+
+**Rejected.** Moving `TriggerActivated` into the add-on: the site's route and its other listeners use it. Depending on the site class by import: it fails the rule that the add-on imports nothing from `App\`. Moving the template, script and styles: they are tied to the site's theme.
+
+**Companion.** `UAMS-Web/aether-tables#3`.

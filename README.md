@@ -2,7 +2,13 @@
 
 Table sanitizing and pasted-table handling for Statamic's editors, by UAMS Web Services. The package is `uams-web/aether-tables`, in the `UAMSWeb\Aether\Tables\` namespace.
 
-> This repository was generated from [`UAMS-Web/statamic-addon-template`](https://github.com/UAMS-Web/statamic-addon-template). The table code moves in from `UAMS-Web/uams-statamic` in a separate change, so the add-on registers nothing yet.
+## What it does
+
+- The `sanitize_table_cell` Antlers modifier, which renders a table cell through HTMLPurifier against a small inline allowlist (links and basic emphasis; everything else is stripped).
+- Pasted-table parsing: the `table_data_paste_trigger` trigger turns pasted HTML, TSV or CSV into the `table_data` value.
+- Spreadsheet import: the `table_data_importer_trigger` trigger reads an uploaded spreadsheet asset into `table_data`.
+
+The Table set's template, script and styles belong to the site's theme and stay in the site.
 
 ## Requirements
 
@@ -21,7 +27,12 @@ Publish the configuration file to the host application's `config/` directory wit
 php artisan vendor:publish --tag=aether-tables-config
 ```
 
-The file has no settings yet.
+It merges into the `tables` config key. The settings are:
+
+- `tables.cell_sanitizer.cache_path`: where HTMLPurifier stores its compiled definitions (default `storage/app/htmlpurifier`).
+- `tables.trigger_event`: the class name of the event the host dispatches when a trigger field is activated in the Control Panel. The paste and import listeners listen for it. The event carries `entry`, `triggerHandle` and `formValues` properties. The default is `App\Events\TriggerActivated`.
+
+Statamic runs only allowlisted modifiers on content data. The add-on adds `sanitize_table_cell` to `statamic.antlers.allowedContentModifiers` itself, so the host does not have to.
 
 ## Development and release
 
