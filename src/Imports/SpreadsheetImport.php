@@ -17,15 +17,13 @@ use UAMSWeb\Aether\Tables\Listeners\HandleTableDataImporterTrigger;
 class SpreadsheetImport implements ToArray
 {
     /**
-     * Converts the spreadsheet data into an array.
+     * Receives the spreadsheet data; the Excel facade returns it to the caller.
      *
      * @param  list<list<scalar|null>>  $array  The spreadsheet data as a multidimensional array
-     * @return list<list<scalar|null>> The same array, returned for further processing
      */
     public function array(
         array $array
-    ): array {
-        // Return the array as-is for processing by the importer listener
-        return $array;
+    ): void {
+        // `Excel::toArray` collects the rows itself; the import has nothing to keep or return.
     }
 }
