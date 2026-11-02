@@ -35,3 +35,15 @@ Oldest first, one entry per closed decision, so **a new entry is appended to the
 **Rejected.** Snapshotting the synced files into the template: every new add-on would begin with a stale copy that conflicts with its first sync pull request. Copying a license from an existing add-on: legal has not decided which license applies.
 
 **Companion.** `UAMS-Web/uams-statamic#261`.
+
+---
+
+## 2026-11-02: Named the package `uams-web/aether-tables` and kept the config file
+
+**Decision.** The package is `uams-web/aether-tables`, namespace `UAMSWeb\Aether\Tables\`, handle `aether-tables`. `config/aether-tables.php` stays as an empty file, published with the tag `aether-tables-config`.
+
+**Why.** The template's name would collide on Packagist. The table sanitizer and pasted-table code that moves in next is expected to need settings, so the publish path is wired from the start instead of added later.
+
+**Rejected.** Dropping the config file and its test now: it would have to be added back when the code move needs its first setting.
+
+**Companion.** `UAMS-Web/aether-tables#2`.

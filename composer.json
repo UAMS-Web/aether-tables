@@ -1,12 +1,12 @@
 {
-    "name": "uams-web/statamic-addon-template",
-    "description": "Starting point for UAMS Statamic add-ons. Replace this description when you start an add-on from it.",
+    "name": "uams-web/aether-tables",
+    "description": "Table sanitizing and pasted-table handling for Statamic editors.",
     "keywords": [
         "statamic",
         "statamic-addon"
     ],
     "type": "statamic-addon",
-    "homepage": "https://github.com/UAMS-Web/statamic-addon-template",
+    "homepage": "https://github.com/UAMS-Web/aether-tables",
     "authors": [
         {
             "name": "UAMS Web Services"
@@ -17,27 +17,27 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/UAMS-Web/statamic-addon-template/issues",
-        "source": "https://github.com/UAMS-Web/statamic-addon-template"
+        "issues": "https://github.com/UAMS-Web/aether-tables/issues",
+        "source": "https://github.com/UAMS-Web/aether-tables"
     },
     "autoload": {
         "psr-4": {
-            "UAMSWeb\\AddonTemplate\\": "src/"
+            "UAMSWeb\\Aether\\Tables\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "UAMSWeb\\AddonTemplate\\Tests\\": "tests/"
+            "UAMSWeb\\Aether\\Tables\\Tests\\": "tests/"
         }
     },
     "extra": {
         "statamic": {
-            "name": "Addon Template",
-            "description": "Replace this description when you start an add-on from the template."
+            "name": "Aether Tables",
+            "description": "Table sanitizing and pasted-table handling for Statamic editors."
         },
         "laravel": {
             "providers": [
-                "UAMSWeb\\AddonTemplate\\ServiceProvider"
+                "UAMSWeb\\Aether\\Tables\\ServiceProvider"
             ]
         },
         "composer-exit-on-patch-failure": true
