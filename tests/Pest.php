@@ -14,3 +14,7 @@ declare(strict_types=1);
 use UAMSWeb\Aether\Tables\Tests\TestCase;
 
 pest()->extend(TestCase::class)->in('Integration');
+
+// Shared runningUnderMutate() helper: the typed `--mutate` check the mutation-hardened
+// suites use to pad a mutant child's timeout.
+require_once __DIR__.'/Support/MutateRun.php';

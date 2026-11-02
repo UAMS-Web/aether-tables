@@ -9,8 +9,9 @@ Written against v0.0.0.
 ## Example
 
 ```php
-// config/aether-tables.php
+// config/tables.php
 return [
-    'some_key' => 'value',
+    'cell_sanitizer' => ['cache_path' => storage_path('app/htmlpurifier')],
+    'trigger_event' => 'App\Events\TriggerActivated',
 ];
 ```

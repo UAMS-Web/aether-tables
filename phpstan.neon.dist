@@ -21,6 +21,7 @@ includes:
     # pestphp/pest-plugin-phpstan`. It accepts `property.notFound` on test
     # cases as the price of analyzing Pest's ad-hoc `$this->foo` state.
     - vendor/pestphp/pest-plugin-phpstan/extension.neon
+    - vendor/phpstan/phpstan-mockery/extension.neon
 
 parameters:
     # Checkout-scoped cache. PHPStan's default tmpDir is

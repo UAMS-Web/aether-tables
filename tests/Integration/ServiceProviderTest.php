@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Statamic\Facades\Addon;
 use UAMSWeb\Aether\Tables\ServiceProvider;
+use UAMSWeb\Aether\Tables\Services\TableCellSanitizer;
+use UAMSWeb\Aether\Tables\Tests\Support\Doubles\TriggerActivated;
 
 /**
  * The add-on boots inside a minimal Statamic.
@@ -20,6 +22,26 @@ it('publishes its config file under the tag the README names', function (): void
     $paths = ServiceProvider::pathsToPublish(null, 'aether-tables-config');
 
     // Expect the package config to publish to the app's config directory
-    expect(array_map(realpath(...), array_keys($paths)))->toBe([realpath(__DIR__.'/../../config/aether-tables.php')])
-        ->and(array_values($paths))->toBe([config_path('aether-tables.php')]);
+    expect(array_map(realpath(...), array_keys($paths)))->toBe([realpath(__DIR__.'/../../config/tables.php')])
+        ->and(array_values($paths))->toBe([config_path('tables.php')]);
+});
+
+it('registers the sanitize_table_cell modifier and shares one sanitizer', function (): void {
+    // Expect the modifier under its unchanged handle
+    expect(app('statamic.modifiers')->has('sanitize_table_cell'))->toBeTrue()
+        // Expect one shared sanitizer instance
+        ->and(app(TableCellSanitizer::class))->toBe(app(TableCellSanitizer::class));
+});
+
+it('merges its defaults under the unchanged tables config key', function (): void {
+    expect(config('tables.cell_sanitizer.cache_path'))->toBeString();
+});
+
+it('handles the paste and importer triggers when the configured trigger event is dispatched', function (): void {
+    // Dispatch the configured event for the paste trigger and collect the listeners' responses
+    $responses = event(new TriggerActivated(null, 'table_data_paste_trigger', ['table_data_paste' => 'a,b
+1,2']));
+
+    // Expect the paste listener's parsed table among them
+    expect(array_filter($responses ?? []))->toContain(['table_data' => [['cells' => ['a', 'b']], ['cells' => ['1', '2']]]]);
 });

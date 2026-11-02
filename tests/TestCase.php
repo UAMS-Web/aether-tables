@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace UAMSWeb\Aether\Tables\Tests;
 
 use Illuminate\Foundation\Application;
+use Maatwebsite\Excel\ExcelServiceProvider;
 use Statamic\Testing\AddonTestCase;
 use UAMSWeb\Aether\Tables\ServiceProvider;
+use UAMSWeb\Aether\Tables\Tests\Support\Doubles\TriggerActivated;
 
 /**
  * Base class for the Integration suite: boots a minimal Statamic through
@@ -90,6 +92,19 @@ abstract class TestCase extends AddonTestCase
     }
 
     /**
+     * Register the Excel package, which a host discovers through Composer but
+     * Testbench does not, beside Statamic's own providers.
+     *
+     * @param  Application  $app  The application being configured.
+     * @return list<class-string>
+     */
+    #[\Override]
+    protected function getPackageProviders($app): array
+    {
+        return [...parent::getPackageProviders($app), ExcelServiceProvider::class];
+    }
+
+    /**
      * Give the application an encryption key, which a Control Panel request
      * needs for its session, and register the REST and GraphQL routes.
      *
@@ -105,5 +120,8 @@ abstract class TestCase extends AddonTestCase
         // edition they require, are read per request and left to each test.
         $app['config']->set('statamic.api.enabled', true);
         $app['config']->set('statamic.graphql.enabled', true);
+
+        // Listen for the test double that stands in for the host site's trigger event
+        $app['config']->set('tables.trigger_event', TriggerActivated::class);
     }
 }
