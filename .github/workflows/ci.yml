@@ -18,14 +18,11 @@ name: CI
 # variable, so the gate does nothing there. `scripts/remote-ci-gate.test.mjs` fails when a job
 # is added without it.
 #
-# REQUIRED CHECKS. The organization ruleset "main: required checks
-# (<this repository>)" requires every job's `name:` below, plus the `name:` of the two
-# pull-request-body workflows, by that exact string. Renaming or adding a job here means
-# updating that ruleset's list in the same change: a renamed job leaves the old name pending
-# forever and blocks every pull request, and a new job is not required until it is listed.
-# Job names must stay unique across all workflows in this repository.
-# `check-required-checks.yml` compares the two lists and reports drift; see its header for the
-# order in which a job and its ruleset entry change.
+# REQUIRED CHECKS. The repository's `required_checks` property is `ci-aggregate` and `pr-body`,
+# which the organization rulesets "main: required checks (ci-aggregate)" and "main: required
+# checks (pr-body)" turn into three required contexts: `CI`, `Attribution footer` and
+# `Closing keywords`. No job below is required by name, so renaming or adding one needs no
+# ruleset change. Job names must stay unique across all workflows in this repository.
 #
 # THE AGGREGATE. The last job, `CI`, `needs:` every other job in this file, runs `if: always()`,
 # and fails unless each of them reported `success` (a `skipped` or `cancelled` job fails it as
