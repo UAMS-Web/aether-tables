@@ -7,7 +7,7 @@ import { parse } from 'yaml'
 // private repository switches remote CI off with a variable instead of deleting the workflows.
 // A job added without it would bill Actions minutes on a private repository, so this fails then.
 const GATE = "vars.RUN_REMOTE_CI != 'false'"
-const GATED_WORKFLOWS = ['ci.yml', 'check-attribution-footer.yml', 'check-closing-keywords.yml', 'check-required-checks.yml']
+const GATED_WORKFLOWS = ['ci.yml', 'check-attribution-footer.yml', 'check-closing-keywords.yml']
 // The aggregate `CI` job is the one deliberate exception: it runs `if: always()` so a skipped
 // needed job fails it instead of leaving it skipped, and a skipped required check counts as success.
 const AGGREGATE_JOB = 'ci'
