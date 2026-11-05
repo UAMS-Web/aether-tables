@@ -26,6 +26,16 @@ name: CI
 # Job names must stay unique across all workflows in this repository.
 # `check-required-checks.yml` compares the two lists and reports drift; see its header for the
 # order in which a job and its ruleset entry change.
+#
+# THE AGGREGATE. The last job, `CI`, `needs:` every other job in this file, runs `if: always()`,
+# and fails unless each of them reported `success` (a `skipped` or `cancelled` job fails it as
+# well, because a job that did not run proved nothing). It is the one context a repository whose
+# `required_checks` property is `ci-aggregate` requires from this workflow, next to the two
+# pull-request-body checks. Add, rename or remove a job here and the `needs:` list of `CI`
+# changes in the same change; the `aggregate-needs` job fails, naming the job, when one is left
+# out. `CI` is the only job without the RUN_REMOTE_CI gate: with the switch off it fails, because
+# every job it needs was skipped, and that is the intended reading (nothing ran, so nothing passed).
+# Keep the job named exactly `CI`.
 
 on:
   pull_request:
@@ -264,3 +274,60 @@ jobs:
 
       - run: composer stan
       - run: composer test
+
+  # Fails, naming the job, when a job in this file is missing from the `needs:` list of `CI` or one
+  # of the three fixed required names (`CI`, `Attribution footer`, `Closing keywords`) is reported
+  # by no pull-request workflow. The allow-list, if one is ever needed, is
+  # `.github/aggregate-needs-allow.json`.
+  aggregate-needs:
+    name: Aggregate needs
+    runs-on: ubuntu-latest
+    # Budget kill-switch: see the RUN_REMOTE_CI note in the header.
+    if: vars.RUN_REMOTE_CI != 'false'
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      - run: node .claude/skills/code-quality/scripts/check-aggregate-needs.mjs
+
+  # The one check a ruleset requires from this workflow. Keep `needs:` listing every other job in
+  # the file; `aggregate-needs` and `scripts/ci-aggregate.test.mjs` fail when one is missing.
+  ci:
+    name: CI
+    needs:
+      - composer-validate
+      - no-emoji
+      - scripts
+      - built-assets
+      - mutate-ignore
+      - parallel-safe
+      - pint
+      - rector
+      - phpstan
+      - pest
+      - compatibility-lowest
+      - compatibility-php85
+      - aggregate-needs
+    # Deliberately not the RUN_REMOTE_CI gate: a skipped aggregate would read as a pass.
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # `skipped` and `cancelled` fail as well as `failure`: a job that did not run proved nothing.
+      - name: Every needed job succeeded
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Needed job results: $RESULTS"
+          # An empty list (an emptied `needs:`, a dropped `env:`) would run no iterations and pass having read nothing.
+          if [ -z "$RESULTS" ]; then echo "::error::No needed job results to read"; exit 1; fi
+          for result in $RESULTS; do
+            if [ "$result" != "success" ]; then
+              echo "::error::A needed job reported $result"
+              exit 1
+            fi
+          done
