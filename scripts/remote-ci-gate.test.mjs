@@ -8,6 +8,10 @@ import { parse } from 'yaml'
 // A job added without it would bill Actions minutes on a private repository, so this fails then.
 const GATE = "vars.RUN_REMOTE_CI != 'false'"
 const GATED_WORKFLOWS = ['ci.yml', 'check-attribution-footer.yml', 'check-closing-keywords.yml', 'check-required-checks.yml']
+// The aggregate `CI` job is the one deliberate exception: it runs `if: always()` so a skipped
+// needed job fails it instead of leaving it skipped, and a skipped required check counts as success.
+const AGGREGATE_JOB = 'ci'
+const AGGREGATE_CONDITION = 'always()'
 
 /**
  * The ids of the jobs in a workflow whose `if:` is not the gate.
@@ -22,7 +26,7 @@ export function ungatedJobs(source) {
     }
 
     return Object.entries(jobs)
-        .filter(([, job]) => job?.if !== GATE)
+        .filter(([id, job]) => job?.if !== GATE && !(id === AGGREGATE_JOB && job?.if === AGGREGATE_CONDITION))
         .map(([id]) => id)
 }
 
@@ -43,6 +47,12 @@ describe('the RUN_REMOTE_CI gate', () => {
 
     it('names a job whose condition is something else', () => {
         const source = ['jobs:', '  other:', "    if: github.event_name == 'push'", '    runs-on: ubuntu-latest', ''].join('\n')
+
+        expect(ungatedJobs(source)).toEqual(['other'])
+    })
+
+    it('accepts the aggregate job running if: always(), and nothing else that does', () => {
+        const source = ['jobs:', '  ci:', `    if: ${AGGREGATE_CONDITION}`, '    runs-on: ubuntu-latest', '  other:', `    if: ${AGGREGATE_CONDITION}`, '    runs-on: ubuntu-latest', ''].join('\n')
 
         expect(ungatedJobs(source)).toEqual(['other'])
     })
