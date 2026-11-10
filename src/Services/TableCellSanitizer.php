@@ -43,20 +43,6 @@ class TableCellSanitizer
     private const string ALLOWED_HTML = 'a[href|title|target],br,strong,em,b,i,u,s,sub,sup,code,abbr[title]';
 
     /**
-     * The URL schemes permitted on cell links.
-     *
-     * Restricting to these schemes blocks `javascript:` and `data:` URIs, which
-     * are the primary link-borne XSS vectors.
-     *
-     * @var list<string>
-     */
-    // A constant's array carries no executable line for the coverage driver, so a mutant here
-    // is reported uncovered whatever the tests assert; TableCellSanitizerMutationTest keeps
-    // each permitted scheme and drops `javascript:`.
-    // @pest-mutate-ignore: RemoveArrayItem
-    private const array ALLOWED_SCHEMES = ['http', 'https', 'mailto', 'tel'];
-
-    /**
      * The memoized purifier instance, built once per process.
      *
      * Building the purifier compiles and caches an HTML definition, so it is
@@ -226,7 +212,7 @@ class TableCellSanitizer
         $config->set(
             'URI.AllowedSchemes',
             \array_fill_keys(
-                self::ALLOWED_SCHEMES,
+                $this->allowedSchemes(),
                 true
             )
         );
@@ -246,20 +232,28 @@ class TableCellSanitizer
                 'Cache.DefinitionImpl',
                 null
             );
-
-            // Without this return, `Cache.SerializerPath` is set to null, which is its default,
-            // and the same purifier is built: the early return saves the call and changes nothing.
-            // @pest-mutate-ignore: RemoveEarlyReturn
-            return $this->purifier = new HTMLPurifier($config);
+        } else {
+            $config->set(
+                'Cache.SerializerPath',
+                $cachePath
+            );
         }
-
-        $config->set(
-            'Cache.SerializerPath',
-            $cachePath
-        );
 
         // Build and memoize the purifier
         return $this->purifier = new HTMLPurifier($config);
+    }
+
+    /**
+     * The URL schemes permitted on cell links.
+     *
+     * Restricting to these schemes blocks `javascript:` and `data:` URIs, which
+     * are the primary link-borne XSS vectors.
+     *
+     * @return list<string> The permitted schemes.
+     */
+    private function allowedSchemes(): array
+    {
+        return ['http', 'https', 'mailto', 'tel'];
     }
 
     /**
@@ -291,14 +285,9 @@ class TableCellSanitizer
         // A suppressed failure means either "a sibling already made it" or "it
         // genuinely cannot be made", and only the filesystem can tell those
         // apart. Re-read it directly — deliberately NOT through the check above,
-        // whose whole purpose was to answer before the concurrent create — after
-        // dropping PHP's stat cache, which still holds the "absent" answer.
-        // PHP caches a successful stat only, never an absent path (measured: is_dir() on a
-        // missing directory, mkdir(), then is_dir() reads true without this call), so dropping
-        // the call or its argument changes nothing observable.
-        // @pest-mutate-ignore: TrueToFalse, RemoveFunctionCall
-        clearstatcache(true, $path);
-
+        // whose whole purpose was to answer before the concurrent create. PHP's stat
+        // cache keeps only a successful stat, never an absent path, so nothing needs
+        // dropping first (pinned in TableCellSanitizerMutationTest).
         if (is_dir($path)) {
             return $path;
         }

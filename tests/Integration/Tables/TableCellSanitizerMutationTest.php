@@ -178,14 +178,24 @@ it('uses an existing cache directory without trying to create it', function (): 
 });
 
 it('creates a missing cache directory recursively with the expected mode', function (): void {
-    // The directory exists on disk, so only the mocked answers decide the branch
-    $dir = sanitizerScratch();
+    // Nothing exists at the path, so only the mocked create can make the answer a path
+    $dir = sanitizerScratch().DIRECTORY_SEPARATOR.'missing';
     config(['tables.cell_sanitizer.cache_path' => $dir]);
     $files = File::partialMock();
-    $files->shouldReceive('isDirectory')->with($dir)->andReturn(false);
     $files->shouldReceive('makeDirectory')->once()->with($dir, 0755, true, true)->andReturn(true);
 
     expect(preparedCachePath(new TableCellSanitizer))->toBe($dir);
+});
+
+it('reads a directory created after an absent check without clearing the stat cache', function (): void {
+    $dir = sanitizerScratch().DIRECTORY_SEPARATOR.'later';
+
+    // Ask about the path while it is absent, create it, then ask again
+    $before = is_dir($dir);
+    mkdir($dir);
+
+    expect($before)->toBeFalse()
+        ->and(is_dir($dir))->toBeTrue();
 });
 
 it('accepts a directory a sibling process created between the check and the create', function (): void {

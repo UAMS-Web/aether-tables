@@ -70,10 +70,6 @@ class ServiceProvider extends AddonServiceProvider
      */
     public function register(): void
     {
-        // The parent class inherits Laravel's empty register(), so removing the call changes nothing.
-        // @pest-mutate-ignore: RemoveMethodCall
-        parent::register();
-
         // Merge the defaults under the `tables` key; the host's own keys win
         $this->mergeConfigFrom(__DIR__.'/../config/tables.php', 'tables');
 

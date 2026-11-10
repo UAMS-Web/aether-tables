@@ -280,11 +280,7 @@ class PastedTableParser
             $rows[] = $cells;
         }
 
-        // Release the temp stream
-        // fclose() on a php://temp stream only frees it earlier; the stream is released when the
-        // method returns either way, so removing the call changes no result.
-        // @pest-mutate-ignore: RemoveFunctionCall
-        \fclose($stream);
+        // The php://temp stream is released when this method returns, so it needs no fclose().
 
         return $rows;
     }

@@ -1,0 +1,10 @@
+{
+    "findings": [
+        {
+            "path": "src/ServiceProvider.php",
+            "marker": "// @pest-mutate-ignore: RemoveArrayItem",
+            "finding": "removes MORE than one mutant of a named mutator",
+            "detail": "RemoveArrayItem=4"
+        }
+    ]
+}
