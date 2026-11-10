@@ -45,3 +45,61 @@ it('handles the paste and importer triggers when the configured trigger event is
     // Expect the paste listener's parsed table among them
     expect(array_filter($responses ?? []))->toContain(['table_data' => [['cells' => ['a', 'b']], ['cells' => ['1', '2']]]]);
 });
+
+/**
+ * Boot a fresh copy of the add-on provider against the current config.
+ *
+ * `bootAddon()` is public, so the trigger and allowlist branches can be driven by
+ * config without rebuilding the application.
+ */
+function bootProviderWith(mixed $triggerEvent, mixed $allowedContentModifiers): void
+{
+    config([
+        'tables.trigger_event' => $triggerEvent,
+        'statamic.antlers.allowedContentModifiers' => $allowedContentModifiers,
+    ]);
+
+    new ServiceProvider(app())->bootAddon();
+}
+
+it('listens with both triggers on the configured event', function (): void {
+    // Boot against a distinct event name so the provider booted by the test case does not count
+    bootProviderWith('aether-tables.test.event', null);
+
+    // Expect the importer and the paste listener, one each
+    expect(app('events')->getListeners('aether-tables.test.event'))->toHaveCount(2);
+});
+
+it('registers no listener when the trigger event is empty or unset', function (mixed $event): void {
+    bootProviderWith($event, null);
+
+    // Expect nothing under the empty name a mis-guarded string check would listen on
+    expect(app('events')->hasListeners(''))->toBeFalse();
+})->with([
+    'unset' => [null],
+    'empty string' => [''],
+]);
+
+it('allows the modifier on content beside the defaults when the host sets no list', function (): void {
+    bootProviderWith(null, null);
+
+    expect(config('statamic.antlers.allowedContentModifiers'))->toBe(['@default', 'sanitize_table_cell']);
+});
+
+it('appends the modifier to the host list and keeps the host entries', function (): void {
+    bootProviderWith(null, ['strip_tags']);
+
+    expect(config('statamic.antlers.allowedContentModifiers'))->toBe(['strip_tags', 'sanitize_table_cell']);
+});
+
+it('leaves a host list that already allows the modifier unchanged', function (): void {
+    bootProviderWith(null, ['sanitize_table_cell', 'strip_tags']);
+
+    expect(config('statamic.antlers.allowedContentModifiers'))->toBe(['sanitize_table_cell', 'strip_tags']);
+});
+
+it('leaves a host allowlist that is not a list unchanged', function (): void {
+    bootProviderWith(null, '*');
+
+    expect(config('statamic.antlers.allowedContentModifiers'))->toBe('*');
+});

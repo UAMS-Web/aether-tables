@@ -50,6 +50,10 @@ class TableCellSanitizer
      *
      * @var list<string>
      */
+    // A constant's array carries no executable line for the coverage driver, so a mutant here
+    // is reported uncovered whatever the tests assert; TableCellSanitizerMutationTest keeps
+    // each permitted scheme and drops `javascript:`.
+    // @pest-mutate-ignore: RemoveArrayItem
     private const array ALLOWED_SCHEMES = ['http', 'https', 'mailto', 'tel'];
 
     /**
@@ -66,6 +70,9 @@ class TableCellSanitizer
      * Latched once a cache failure has been recovered from, so the fallback is
      * paid at most once per process rather than on every cell.
      */
+    // A property default carries no executable line for the coverage driver; the first cell
+    // purified through the on-disk cache in TableCellSanitizerMutationTest pins the initial state.
+    // @pest-mutate-ignore: FalseToTrue
     private bool $definitionCacheAbandoned = false;
 
     /**
@@ -240,6 +247,9 @@ class TableCellSanitizer
                 null
             );
 
+            // Without this return, `Cache.SerializerPath` is set to null, which is its default,
+            // and the same purifier is built: the early return saves the call and changes nothing.
+            // @pest-mutate-ignore: RemoveEarlyReturn
             return $this->purifier = new HTMLPurifier($config);
         }
 
@@ -283,6 +293,10 @@ class TableCellSanitizer
         // apart. Re-read it directly — deliberately NOT through the check above,
         // whose whole purpose was to answer before the concurrent create — after
         // dropping PHP's stat cache, which still holds the "absent" answer.
+        // PHP caches a successful stat only, never an absent path (measured: is_dir() on a
+        // missing directory, mkdir(), then is_dir() reads true without this call), so dropping
+        // the call or its argument changes nothing observable.
+        // @pest-mutate-ignore: TrueToFalse, RemoveFunctionCall
         clearstatcache(true, $path);
 
         if (is_dir($path)) {

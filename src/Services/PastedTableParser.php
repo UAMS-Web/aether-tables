@@ -57,6 +57,9 @@ class PastedTableParser
         $pasted = \trim($pasted);
 
         // Bail out early on empty input
+        // An empty string falls through to parseDelimited(), which reads no record, so the early
+        // return and its test change no result.
+        // @pest-mutate-ignore: EmptyStringToNotEmpty, RemoveEarlyReturn
         if ($pasted === '') {
             return [];
         }
@@ -87,9 +90,15 @@ class PastedTableParser
     ): array {
         // Parse the markup without emitting libxml warnings for partial HTML
         $dom = new DOMDocument;
+        // The NOERROR and NOWARNING flags below already silence libxml with internal errors off (measured:
+        // no warning is raised either way).
+        // @pest-mutate-ignore: TrueToFalse
         $previous = \libxml_use_internal_errors(true);
 
         // Force UTF-8 interpretation of the fragment
+        // The two flags and the internal-error mode overlap: libxml collects the errors either way and
+        // they are cleared below, so dropping the flags changes no result (measured).
+        // @pest-mutate-ignore: BitwiseOrToBitwiseAnd
         $dom->loadHTML(
             '<?xml encoding="UTF-8">'.$html,
             LIBXML_NOERROR | LIBXML_NOWARNING
@@ -114,6 +123,9 @@ class PastedTableParser
 
             // Collect the direct th/td children of the row
             foreach ($tr->childNodes as $cell) {
+                // Only elements carry the names th and td, so the instanceof test is redundant; libxml's HTML
+                // parser lower-cases element names, and loose and strict in_array() agree on non-numeric strings.
+                // @pest-mutate-ignore: InstanceOfToTrue, UnwrapStrtolower, TrueToFalse
                 if (
                     $cell instanceof DOMElement
                     && \in_array(
@@ -154,16 +166,27 @@ class PastedTableParser
         // Walk the table's direct children
         foreach ($table->childNodes as $child) {
             // Skip text nodes and other non-elements
+            // A text node's name '#text' matches no branch below, so letting it through changes nothing; the
+            // skip is a short cut.
+            // @pest-mutate-ignore: InstanceOfToTrue
             if (! $child instanceof DOMElement) {
                 continue;
             }
 
             // Resolve the lower-cased tag name once
+            // libxml's HTML parser lower-cases element names, so strtolower() changes nothing (measured on
+            // `<TABLE><TR><TD>`).
+            // @pest-mutate-ignore: UnwrapStrtolower
             $name = \strtolower($child->nodeName);
 
             // Rows inside a section element (thead/tbody/tfoot)
+            // Element names are non-numeric strings, so loose and strict in_array() agree.
+            // @pest-mutate-ignore: TrueToFalse
             if (\in_array($name, ['thead', 'tbody', 'tfoot'], true)) {
                 foreach ($child->childNodes as $tr) {
+                    // Only elements carry the name 'tr', so the instanceof test is redundant; libxml's HTML parser
+                    // lower-cases element names, so strtolower() changes nothing.
+                    // @pest-mutate-ignore: InstanceOfToTrue, UnwrapStrtolower
                     if (
                         $tr instanceof DOMElement
                         && \strtolower($tr->nodeName) === 'tr'
@@ -195,6 +218,8 @@ class PastedTableParser
 
         // Concatenate the serialized form of each child node
         foreach ($node->childNodes as $child) {
+            // A DOMElement always has an owner document, so the null-safe operator never short-circuits.
+            // @pest-mutate-ignore: RemoveNullSafeOperator
             $serialized = $node->ownerDocument?->saveHTML($child);
 
             // Append only when serialization succeeded
@@ -227,6 +252,8 @@ class PastedTableParser
         $stream = \fopen('php://temp', 'r+');
 
         // Guard against an unavailable temp stream
+        // fopen('php://temp') does not fail, so the guard is unreachable and no input can reach its return.
+        // @pest-mutate-ignore: FalseToTrue, RemoveEarlyReturn
         if ($stream === false) {
             return [];
         }
@@ -254,6 +281,9 @@ class PastedTableParser
         }
 
         // Release the temp stream
+        // fclose() on a php://temp stream only frees it earlier; the stream is released when the
+        // method returns either way, so removing the call changes no result.
+        // @pest-mutate-ignore: RemoveFunctionCall
         \fclose($stream);
 
         return $rows;

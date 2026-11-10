@@ -315,6 +315,9 @@ class HandleTableDataImporterTrigger
             // ---
 
             // Check if no valid table data was extracted
+            // A sheet with no value returned above, so at least one row survives to here and the
+            // guard cannot be reached; removing its return changes no result.
+            // @pest-mutate-ignore: RemoveEarlyReturn
             if (empty($tableData)) {
                 // Return empty array to indicate no changes
                 return [];
