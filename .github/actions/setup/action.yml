@@ -6,6 +6,10 @@ inputs:
     description: The PHP version to install.
     required: false
     default: '8.4'
+  coverage:
+    description: The coverage driver to load (none, pcov, xdebug). Mutation testing needs pcov.
+    required: false
+    default: none
 
 runs:
   using: composite
@@ -14,7 +18,7 @@ runs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ inputs.php-version }}
-        coverage: none
+        coverage: ${{ inputs.coverage }}
         tools: composer:v2
 
     - name: Determine Composer cache directory
