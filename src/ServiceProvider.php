@@ -27,6 +27,10 @@ class ServiceProvider extends AddonServiceProvider
      *
      * @var list<class-string<Modifier>>
      */
+    // The coverage driver attributes no executable line to a property default, so a mutant
+    // here is reported uncovered whatever the tests assert; ServiceProviderTest pins the
+    // registered modifier.
+    // @pest-mutate-ignore: RemoveArrayItem
     protected $modifiers = [
         SanitizeTableCell::class,
     ];
@@ -37,6 +41,9 @@ class ServiceProvider extends AddonServiceProvider
      *
      * @var bool
      */
+    // A property default carries no executable line for the coverage driver; ServiceProviderTest
+    // pins the unchanged `tables` key and the publish tag this setting stands in for.
+    // @pest-mutate-ignore: FalseToTrue
     protected $config = false;
 
     /**
@@ -46,6 +53,9 @@ class ServiceProvider extends AddonServiceProvider
      *
      * @var array{input: list<string>, publicDirectory: string}
      */
+    // A property default carries no executable line for the coverage driver; ViteBuildTest pins
+    // these inputs and the output directory against vite.config.js and the committed manifest.
+    // @pest-mutate-ignore: RemoveArrayItem
     protected $vite = [
         'input' => [
             'resources/js/cp.js',
@@ -60,8 +70,6 @@ class ServiceProvider extends AddonServiceProvider
      */
     public function register(): void
     {
-        parent::register();
-
         // Merge the defaults under the `tables` key; the host's own keys win
         $this->mergeConfigFrom(__DIR__.'/../config/tables.php', 'tables');
 
