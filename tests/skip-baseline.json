@@ -11,6 +11,10 @@
         "once you know why the new skip is correct, and say so in the PR."
     ],
     "bands": {
+        "suite": {
+            "expected": 0,
+            "why": "No test skips. Every test in the Unit and Integration suites runs. The shared CI chain checks this band; the local test:bands script checks the parallel one."
+        },
         "parallel": {
             "expected": 0,
             "why": "No test skips. Every test in the Unit and Integration suites runs."
