@@ -16,7 +16,10 @@ name: CI
 # - What the `mutate` job mutates depends on the event. A pull request and a push to `main` mutate
 #   only the PHP files under `mutate-paths` that the commit adds, changes or renames; a commit that
 #   changes none passes with nothing mutated. The full pass over everything `composer mutate`
-#   covers runs on a `schedule` or `workflow_dispatch` run; the weekly schedule is its own ticket.
+#   covers runs on a `schedule` or `workflow_dispatch` run. The weekly `schedule` below runs it on
+#   Mondays at 08:00 UTC, on the default branch, under the chain's default full-run timeout
+#   (`mutate-full-timeout-minutes`, 180), so decay that no pull request touches is caught. The
+#   45-minute cap on pull request and push runs is unchanged.
 # - The chain's checks report as `checks / <job name> (<operating system>)`.
 #
 # RUN_REMOTE_CI: budget kill-switch.
@@ -50,6 +53,9 @@ on:
   pull_request:
   push:
     branches: [main]
+  # The weekly full mutation pass: Mondays at 08:00 UTC, on the default branch.
+  schedule:
+    - cron: '0 8 * * 1'
   # Lets the workflow be run on demand against a branch; on `main` it runs the full mutation pass.
   workflow_dispatch:
 
