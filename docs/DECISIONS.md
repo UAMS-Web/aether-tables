@@ -59,3 +59,15 @@ Oldest first, one entry per closed decision, so **a new entry is appended to the
 **Rejected.** Moving `TriggerActivated` into the add-on: the site's route and its other listeners use it. Depending on the site class by import: it fails the rule that the add-on imports nothing from `App\`. Moving the template, script and styles: they are tied to the site's theme.
 
 **Companion.** `UAMS-Web/aether-tables#3`.
+
+---
+
+## 2026-11-12: Submitted to Packagist and licensed under MIT ahead of the legal decision
+
+**Decision.** The add-on is listed on Packagist and licensed under MIT. `LICENSE` reads `Copyright (c) 2026 University of Arkansas for Medical Sciences`, `composer.json` declares `"license": "MIT"`, and the README's License section points at `LICENSE`. `SubmissionReadinessTest` lists `license` and fails when `composer.json` and `LICENSE` disagree. This replaces the license position of the 2026-10-14 entry.
+
+**Why.** A public Packagist listing needs a license, and `UAMS-Web/aether-redirects` already ships under MIT with the same copyright line, so the two add-ons read alike. `UAMS-Web/uams-statamic#261` is still open and no longer gates the listing.
+
+**Rejected.** Waiting for the decision in `UAMS-Web/uams-statamic#261`: the package is already tagged and listed, and a listing with no license grants consumers nothing. A license other than MIT: the precedent repository uses MIT and nothing recorded favors a different one.
+
+**Companion.** `UAMS-Web/aether-tables#48`.

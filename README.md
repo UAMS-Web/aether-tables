@@ -42,4 +42,4 @@ Statamic runs only allowlisted modifiers on content data. The add-on adds `sanit
 
 ## License
 
-No license is declared yet. It waits on the general decision from UAMS legal in [`UAMS-Web/uams-statamic#261`](https://github.com/UAMS-Web/uams-statamic/issues/261).
+MIT. See [`LICENSE`](LICENSE).
