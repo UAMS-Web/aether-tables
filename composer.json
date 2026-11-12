@@ -7,6 +7,7 @@
     ],
     "type": "statamic-addon",
     "homepage": "https://github.com/UAMS-Web/aether-tables",
+    "license": "MIT",
     "authors": [
         {
             "name": "UAMS Web Services"
