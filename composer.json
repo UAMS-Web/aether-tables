@@ -42,6 +42,12 @@
         },
         "composer-exit-on-patch-failure": true
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/UAMS-Web/patches-pest-plugin-mutate.git"
+        }
+    ],
     "require": {
         "php": "^8.4",
         "ezyang/htmlpurifier": "^4.19",
