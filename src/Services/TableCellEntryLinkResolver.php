@@ -99,8 +99,11 @@ class TableCellEntryLinkResolver
             return null;
         }
 
+        // `url()` returns null for an entry without a route, and otherwise a
+        // non-empty string: a redirect counts only when its target is truthy, and a
+        // routed URL is made relative from a non-empty absolute one
         $url = $localized->url();
 
-        return \is_string($url) && $url !== '' ? $url : null;
+        return \is_string($url) ? $url : null;
     }
 }

@@ -7,6 +7,7 @@ use Statamic\Entries\Entry as EntryItem;
 use Statamic\Facades\Antlers;
 use Statamic\Facades\Collection as CollectionFacade;
 use Statamic\Facades\Entry;
+use Statamic\Facades\Site;
 use Statamic\Facades\Stache;
 use UAMSWeb\Aether\Tables\Services\TableCellEntryLinkResolver;
 
@@ -140,6 +141,44 @@ it('renders a reference to an entry without a URL as text without an href', func
 
     expect(renderTableCell('<a href="statamic://entry::mccoy-id">McCoy</a>'))
         ->toBe('<a>McCoy</a>');
+});
+
+it('decodes an HTML5 entity in the referenced id', function (): void {
+    // `&period;` is a named entity only HTML5 decoding knows
+    tableLinkPage('kirk.id', 'kirk');
+
+    expect(renderTableCell('<a href="statamic://entry::kirk&period;id">Kirk</a>'))
+        ->toBe('<a href="/kirk">Kirk</a>');
+});
+
+it('removes the href attribute itself when the entry cannot be linked', function (): void {
+    // The resolver's own output, before the sanitizer tidies the tag
+    expect(app(TableCellEntryLinkResolver::class)->resolve('<a href="statamic://entry::no-such-entry">Crew</a>'))
+        ->toBe('<a >Crew</a>');
+});
+
+it('renders a reference to an entry with no localization on the current site as text without an href', function (): void {
+    // Two sites, and an entry that exists only on the one not being rendered
+    Site::setSites([
+        'default' => ['name' => 'Default', 'url' => '/', 'locale' => 'en_US'],
+        'enterprise' => ['name' => 'Enterprise', 'url' => '/enterprise/', 'locale' => 'en_US'],
+    ]);
+    $pages = CollectionFacade::make('pages');
+    $pages->routes('/{slug}');
+    $pages->sites(['default', 'enterprise']);
+    $pages->save();
+
+    /** @var EntryItem $entry */
+    $entry = Entry::make();
+    $entry->id('rand-id');
+    $entry->collection('pages');
+    $entry->locale('enterprise');
+    $entry->slug('rand');
+    $entry->data(['title' => 'Rand']);
+    $entry->save();
+
+    expect(renderTableCell('<a href="statamic://entry::rand-id">Rand</a>'))
+        ->toBe('<a>Rand</a>');
 });
 
 it('still strips javascript and data links', function (string $href): void {
