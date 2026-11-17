@@ -157,6 +157,26 @@ it('removes the href attribute itself when the entry cannot be linked', function
         ->toBe('<a >Crew</a>');
 });
 
+it('renders the same href whether the site URL is a literal or a config reference', function (string $siteUrl): void {
+    // Statamic evaluates a site's values through Antlers, and a value that is only config
+    // can skip that step, so every form must resolve to the same entry URL
+    config([
+        'aether_tables_test.site_url' => 'https://example.test/hub/',
+        'aether_tables_test.site_origin' => 'https://example.test',
+    ]);
+    Site::setSites([
+        'default' => ['name' => 'Default', 'url' => $siteUrl, 'locale' => 'en_US'],
+    ]);
+    tableLinkPage('chekov-id', 'chekov');
+
+    expect(renderTableCell('<a href="statamic://entry::chekov-id">Chekov</a>'))
+        ->toBe('<a href="/hub/chekov">Chekov</a>');
+})->with([
+    'literal' => 'https://example.test/hub/',
+    'config reference' => '{{ config:aether_tables_test.site_url }}',
+    'config reference with a path' => '{{ config:aether_tables_test.site_origin }}/hub/',
+]);
+
 it('renders a reference to an entry with no localization on the current site as text without an href', function (): void {
     // Two sites, and an entry that exists only on the one not being rendered
     Site::setSites([
