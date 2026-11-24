@@ -7,7 +7,8 @@
 
 **Guides**
 
-- [Task guide](Task-guide.md)
+- [Importing a spreadsheet](Importing-a-spreadsheet.md)
+- [Showing table cells safely](Showing-table-cells-safely.md)
 
 **Troubleshooting**
 
@@ -15,7 +16,9 @@
 
 **Reference**
 
-- [Reference](Reference.md)
+- [Configuration](Configuration.md)
+- [Triggers](Triggers.md)
+- [The sanitize_table_cell modifier](The-sanitize_table_cell-modifier.md)
 - [README](https://github.com/UAMS-Web/aether-tables#readme)
 
 **Project**
