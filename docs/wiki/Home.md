@@ -1,17 +1,16 @@
-Replace this paragraph with what the add-on does and who it is for.
+Aether Tables sanitizes the cells of a Statamic table and fills a table from pasted text or an uploaded spreadsheet. It is for the editors and developers of a Statamic site that stores tables as `table_data`.
 
-This wiki holds the documentation: a walkthrough, task guides by role, the reference, and troubleshooting. The [README](https://github.com/UAMS-Web/aether-tables#readme) keeps an overview, the requirements and installation.
-
-The pages in this folder are skeletons, one per page shape the `github-wiki` skill describes. Copy each, fill it in, rename it for its subject, and keep Home, the sidebar and the footer listing the same pages under the same labels.
+This wiki holds the documentation: a walkthrough, task guides, the reference and troubleshooting. The [README](https://github.com/UAMS-Web/aether-tables#readme) keeps an overview, the requirements and installation.
 
 ## Getting started
 
 - [Installation (README)](https://github.com/UAMS-Web/aether-tables#installation): add the package to a Statamic install.
-- [Walkthrough](Walkthrough.md): a first use of the add-on, from nothing to a visible result.
+- [Walkthrough](Walkthrough.md): paste a table into a `table_data` field and show it on a page.
 
 ## Guides
 
-- [Task guide](Task-guide.md): one task, the steps, and the reference it used.
+- [Importing a spreadsheet](Importing-a-spreadsheet.md): fill a table from an uploaded CSV, XLS or XLSX file.
+- [Showing table cells safely](Showing-table-cells-safely.md): render cell values with the `sanitize_table_cell` modifier, including links to entries.
 
 ## Troubleshooting
 
@@ -19,7 +18,9 @@ The pages in this folder are skeletons, one per page shape the `github-wiki` ski
 
 ## Reference
 
-- [Reference](Reference.md): every setting, tag, command or permission of one area.
+- [Configuration](Configuration.md): the `tables` config key and how to publish it.
+- [Triggers](Triggers.md): the paste and import triggers, the fields they read and what they return.
+- [The sanitize_table_cell modifier](The-sanitize_table_cell-modifier.md): what the modifier allows and removes.
 
 ## Project
 
